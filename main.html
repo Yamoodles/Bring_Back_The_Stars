@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bringing Back the Stars - Light Pollution Report</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* i found this font thing online*/
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #2A2446;
+            color: #F5EFE6;
+        }
+        
+        /* this makes the cards look cool with that blurry effect */
+        /* i copied this from somewhere but changed the colors to match my theme */
+        .glass-card {
+            background: rgba(176, 166, 201, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(176, 166, 201, 0.3);
+        }
+        
+        /* this is for the chart so it fits nicely on phones too */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+        }
+        
+        /* this makes the numbers animate when you scroll to them */
+        /* it works */
+        .stat-value {
+            transition: all 0.5s ease-out;
+        }
+        
+        /* navigation stuff*/
+        .nav-link {
+            transition: color 0.3s, border-bottom-color 0.3s;
+        }
+        .nav-link:hover {
+            color: #B0A6C9;
+        }
+        .nav-link.active {
+            color: #F5EFE6;
+            border-bottom-color: #F5EFE6;
+        }
+        
+        /* this is for the night sky comparison thing */
+        /* consider deleting, a bit ugly */
+        .sky-visual {
+            width: 100%;
+            height: 300px;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        /* nyc sky */
+        .sky-visual-top-nyc {
+            flex-grow: 1;
+            background: linear-gradient(to bottom, #444, #888);
+            position: relative;
+            overflow: hidden;
+        }
+        .sky-visual-bottom-nyc {
+            height: 100px;
+            background: linear-gradient(to top, #ccc, #888);
+        }
+        
+        /* guatemala sky, shouldv'e used css */
+        .sky-visual-top-guatemala {
+            flex-grow: 1;
+            background: linear-gradient(to bottom, #2A2446, #4A4568);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* star animation */
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 1.5s infinite ease-in-out;
+            opacity: 0.8;
+        }
+        @keyframes twinkle {
+            0%, 100% { transform: scale(0.5); opacity: 0.8; }
+            50% { transform: scale(1.2); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- this is the top part with navigation -->
+    <header class="bg-opacity-90 backdrop-blur-md sticky top-0 z-50 glass-card">
+        <nav class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="text-xl font-bold text-white">Bringing Back the Stars</div>
+                <div class="hidden md:flex space-x-8">
+                    <a href="#problem" class="nav-link text-lg pb-1 border-b-2 border-transparent" onclick="scrollToSection('problem')">The Problem</a>
+                    <a href="#solution" class="nav-link text-lg pb-1 border-b-2 border-transparent" onclick="scrollToSection('solution')">The Solution</a>
+                    <a href="#impact" class="nav-link text-lg pb-1 border-b-2 border-transparent" onclick="scrollToSection('impact')">Our Impact</a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-6 py-8 md:py-16">
+
+        <!-- big title section -->
+        <section id="hero" class="text-center min-h-[60vh] flex flex-col items-center justify-center">
+            <h1 class="text-4xl md:text-6xl font-bold text-white leading-tight mb-4">The Night Sky is Disappearing</h1>
+            <p class="text-lg md:text-xl text-slate-400 max-w-3xl mx-auto mb-8">This is my project about light pollution and why we need to do something about it. I grew up in Guatemala where you could see ALL the stars, but now I live in NYC where you can barely see any.</p>
+            <a href="#problem" class="bg-[#B0A6C9] text-[#2A2446] font-bold py-3 px-8 rounded-md hover:bg-opacity-90 transition-transform transform hover:scale-105" onclick="scrollToSection('problem')">Read My Report</a>
+        </section>
+
+        <div class="space-y-24 md:space-y-32">
+
+            <!-- problem section with scary numbers -->
+            <section id="problem" class="scroll-mt-20">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold text-white">Light Pollution is Expensive and Bad</h2>
+                    <p class="text-lg text-slate-400 mt-2 max-w-2xl mx-auto">I looked up some numbers and they're pretty crazy. We waste SO much money and energy on bad lighting.</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+                    <div class="glass-card p-8 rounded-lg">
+                        <div class="text-5xl font-bold text-[#F5EFE6] mb-2 number-counter" data-target="3">0</div>
+                        <h3 class="text-xl font-semibold text-white">Billion Dollars</h3>
+                        <p class="text-slate-400 mt-1">Wasted every year in the U.S. just from bad outdoor lighting</p>
+                    </div>
+                    <div class="glass-card p-8 rounded-lg">
+                        <div class="text-5xl font-bold text-[#F5EFE6] mb-2 number-counter" data-target="30">0</div>
+                        <h3 class="text-xl font-semibold text-white">Percent</h3>
+                        <p class="text-slate-400 mt-1">Of all outdoor lighting is completely wasted (like, shining up at the sky for no reason)</p>
+                    </div>
+                    <div class="glass-card p-8 rounded-lg">
+                        <div class="text-5xl font-bold text-[#F5EFE6] mb-2 number-counter" data-target="15">0</div>
+                        <h3 class="text-xl font-semibold text-white">Million Tons CO₂</h3>
+                        <p class="text-slate-400 mt-1">Extra carbon emissions. That's like having 3 million more cars!</p>
+                    </div>
+                </div>
+
+                <!-- animals get hurt too -->
+                <div class="mt-16">
+                    <h3 class="text-2xl font-bold text-center text-white mb-8">It's Also Killing Animals (This Made Me Really Sad)</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="glass-card p-6 rounded-lg">
+                            <h4 class="text-xl font-semibold text-white mb-2">Baby Sea Turtles 🐢</h4>
+                            <p class="text-slate-400">Over 100,000 baby turtles die every year just in Florida because they get confused by city lights and go the wrong way instead of towards the ocean. This is so sad.</p>
+                        </div>
+                        <div class="glass-card p-6 rounded-lg">
+                            <h4 class="text-xl font-semibold text-white mb-2">Birds 🐦</h4>
+                            <p class="text-slate-400">Millions of birds crash into buildings or get lost during migration because they follow bright lights instead of stars. They literally fly around lights until they die from being too tired.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- what i think we should do about it -->
+            <section id="solution" class="scroll-mt-20">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold text-white">My Solution: Tell Everyone About This!</h2>
+                    <p class="text-lg text-slate-400 mt-2 max-w-3xl mx-auto">I think the main problem is that most people don't even know light pollution is a thing. People will take action if they know about it, maybe they'll make their cities change the lights.</p>
+                </div>
+
+                <div class="glass-card p-8 rounded-lg">
+                    <h3 class="text-2xl font-bold text-white mb-6 text-center">Cool Organizations That Are Already Working On This</h3>
+                    <p class="text-slate-400 text-center mb-6 max-w-2xl mx-auto">I found these groups online and they have lots of good info. You should check them out!</p>
+                    <div class="space-y-4">
+                        <div class="bg-[#3A335B] p-4 rounded-md">
+                            <h4 class="font-semibold text-lg text-white">International Dark-Sky Association</h4>
+                            <p class="text-slate-400">These are like the main experts on light pollution. They have tons of data and help cities make better lighting policies.</p>
+                            <a href="https://www.darksky.org" class="text-[#B0A6C9] hover:underline" target="_blank">Check them out here</a>
+                        </div>
+                        <div class="bg-[#3A335B] p-4 rounded-md">
+                            <h4 class="font-semibold text-lg text-white">United Nations Environment Programme</h4>
+                            <p class="text-slate-400">Even the UN is worried about light pollution! They say it's connected to climate change and animals going extinct.</p>
+                            <a href="#" class="text-[#B0A6C9] hover:underline">Look at their reports</a>
+                        </div>
+                        <div class="bg-[#3A335B] p-4 rounded-md">
+                            <h4 class="font-semibold text-lg text-white">Globe at Night Project</h4>
+                            <p class="text-slate-400">This is so cool - regular people can help scientists by looking at their night sky and reporting what they see. It's like citizen science!</p>
+                            <a href="https://www.globeatnight.org" class="text-[#B0A6C9] hover:underline" target="_blank">You can help here</a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- my data analysis part -->
+            <section id="impact" class="scroll-mt-20">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold text-white">I Did Some Math</h2>
+                    <p class="text-lg text-slate-400 mt-2 max-w-2xl mx-auto">I wanted to show how much energy we could save if we just used better lightbulbs. The numbers are pretty crazy.</p>
+                </div>
+                <div class="glass-card p-8 rounded-lg">
+                    <h3 class="text-2xl font-bold text-white mb-6 text-center">Old vs New Street Lights</h3>
+                    <p class="text-slate-400 text-center mb-6 max-w-2xl mx-auto">LED lights use WAY less energy than the old bulbs. Like, it's not even close.</p>
+                    <div class="chart-container">
+                        <canvas id="energyChart"></canvas>
+                    </div>
+                    <!-- i wanted to show the actual numbers too -->
+                    <div class="mt-6 text-center">
+                        <p class="text-slate-400">Old streetlight: <span class="text-white font-bold">250 watts</span></p>
+                        <p class="text-slate-400">New LED streetlight: <span class="text-white font-bold">50 watts</span></p>
+                        <p class="text-[#B0A6C9] font-bold mt-2">That's 80% less energy!</p>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- this is the personal part - my story -->
+            <section id="story" class="scroll-mt-20">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold text-white">Why I Care About This</h2>
+                    <p class="text-lg text-slate-400 mt-2 max-w-2xl mx-auto">I did not grow up in the USA, I grew up in Guatemala, the night sky was beautiful. Now I live in NY and kids here will never get to experience the night sky without pollution.</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                    <div class="glass-card p-6 rounded-lg">
+                        <h3 class="text-2xl font-bold text-white mb-4">New York (where I live now)</h3>
+                        <div class="sky-visual">
+                            <div class="sky-visual-top-nyc">
+                                <!-- only a couple stars visible -->
+                                <div class="star w-0.5 h-0.5" style="top: 10%; left: 80%;"></div>
+                                <div class="star w-0.5 h-0.5" style="top: 25%; left: 20%;"></div>
+                            </div>
+                            <div class="sky-visual-bottom-nyc"></div>
+                        </div>
+                        <p class="text-slate-400 mt-4">This is what the night sky looks like in NYC. You can barely see any stars because of all the light pollution. It's pretty depressing.</p>
+                    </div>
+                    <div class="glass-card p-6 rounded-lg">
+                        <h3 class="text-2xl font-bold text-white mb-4">Guatemala (where I grew up)</h3>
+                        <div class="sky-visual">
+                            <div class="sky-visual-top-guatemala relative">
+                                <!-- tons of stars - this was magical -->
+                                <div class="star w-0.5 h-0.5" style="top: 10%; left: 5%;"></div>
+                                <div class="star w-0.5 h-0.5" style="top: 25%; left: 15%;"></div>
+                                <div class="star w-0.5 h-0.5" style="top: 50%; left: 20%;"></div>
+                                <div class="star w-0.5 h-0.5" style="top: 75%; left: 10%;"></div>
+                                <div class="star w-0.5 h-0.5" style="top: 85%; left: 30%;"></div>
+                                <div class="star w-0.5 h-0.5" style="top: 90%; left: 50%;"></div>
+                                <div class="star w-0.5 h-0.5" style="top: 60%; left: 40%;"></div>
+                                <div class="star w-0.5 h-0.5" style="top: 45%; left: 70%;"></div>
+                                <div class="star w-0.5 h-0.5" style="top: 20%; left: 95%;"></div>
+                                <div class="star w-0.5 h-0.5" style="top: 15%; left: 60%;"></div>
+                                <div class="star w-0.5 h-0.5" style="top: 35%; left: 85%;"></div>
+                                <div class="star w-0.5 h-0.5" style="top: 40%; left: 55%;"></div>
+                                <div class="star w-0.5 h-0.5" style="top: 5%; left: 30%;"></div>
+                                <div class="star w-0.5 h-0.5" style="top: 70%; left: 75%;"></div>
+                                <div class="star w-0.5 h-0.5" style="top: 80%; left: 90%;"></div>
+                                <div class="star w-0.5 h-0.5" style="top: 30%; left: 3%;"></div>
+                                <div class="star w-0.5 h-0.5" style="top: 65%; left: 25%;"></div>
+                                <div class="star w-0.5 h-0.5" style="top: 70%; left: 50%;"></div>
+                                <div class="star w-0.5 h-0.5" style="top: 85%; left: 70%;"></div>
+                                <div class="star w-0.5 h-0.5" style="top: 25%; left: 45%;"></div>
+                                <div class="star w-0.5 h-0.5" style="top: 50%; left: 65%;"></div>
+                                <div class="star w-0.5 h-0.5" style="top: 10%; left: 75%;"></div>
+                                <div class="star w-0.5 h-0.5" style="top: 95%; left: 15%;"></div>
+                                <div class="star w-0.5 h-0.5" style="top: 55%; left: 5%;"></div>
+                                <div class="star w-0.5 h-0.5" style="top: 80%; left: 35%;"></div>
+                                <div class="star w-0.5 h-0.5" style="top: 60%; left: 15%;"></div>
+                                <div class="star w-0.5 h-0.5" style="top: 30%; left: 20%;"></div>
+                                <div class="star w-0.5 h-0.5" style="top: 40%; left: 80%;"></div>
+                                <div class="star w-0.5 h-0.5" style="top: 50%; left: 90%;"></div>
+                                <div class="star w-0.5 h-0.5" style="top: 20%; left: 60%;"></div>
+                                <div class="star w-0.5 h-0.5" style="top: 75%; left: 45%;"></div>
+                                <div class="star w-0.5 h-0.5" style="top: 15%; left: 85%;"></div>
+                                <div class="star w-0.5 h-0.5" style="top: 90%; left: 70%;"></div>
+                            </div>
+                        </div>
+                        <p class="text-slate-400 mt-4">This is what I remember from Guatemala - SO many stars! You could see the Milky Way and everything. We didn't even need flashlights because the starlight was bright enough. I want kids everywhere to be able to see this.</p>
+                    </div>
+                </div>
+                <div class="text-center mt-8">
+                    <p class="text-lg text-slate-400 max-w-3xl mx-auto">The difference is incredible. In Guatemala, nights were magical - you felt connected to the universe. In NYC, you forget there's even a sky above all the buildings. We're stealing this experience from future generations.</p>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <footer class="mt-24 py-8 border-t border-slate-800">
+        <div class="container mx-auto px-6 text-center text-slate-500">
+            <p>&copy; 2025 My Light Pollution Project. Made for the climate awareness competition.</p>
+        </div>
+    </footer>
+
+    <script>
+        // all my javascript code is here
+        
+        // hardcoded data
+        var myData = {
+            oldBulbWatts: 250,  // old streetlights use this much
+            newBulbWatts: 50,   // new LED ones only use this much
+            energySaved: 0      // i'll calculate this later
+        };
+        
+        // calculate how much energy we save
+        myData.energySaved = myData.oldBulbWatts - myData.newBulbWatts;
+        console.log("Energy saved per bulb:", myData.energySaved, "watts"); // for debugging
+        
+        // this function makes the chart
+        // Chart.js online 
+        function makeChart() {
+            var canvas = document.getElementById('energyChart');
+            var ctx = canvas.getContext('2d');
+            
+            // create the chart (docs)
+            var myChart = new Chart(ctx, {
+                type: 'bar',  // bar chart seemed like the easiest
+                data: {
+                    labels: ['Old Bulb (High Pressure Sodium)', 'New Bulb (LED)'],
+                    datasets: [{
+                        label: 'Watts Used',
+                        data: [myData.oldBulbWatts, myData.newBulbWatts],
+                        backgroundColor: ['#B0A6C9', '#F5EFE6'],
+                        borderColor: ['#B0A6C9', '#F5EFE6'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    responsive: true,
+                    plugins: {
+                        legend: { 
+                            display: false  // don't need legend for this simple chart
+                        },
+                        title: {
+                            display: true,
+                            text: 'Energy Use Comparison (Watts per Streetlight)',
+                            color: '#F5EFE6',
+                            font: { size: 16 }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,  // start at 0 to show the full difference
+                            grid: { color: 'rgba(245, 239, 230, 0.2)' },
+                            ticks: { color: '#B0A6C9' }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#F5EFE6', font: { size: 12 } }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // this function animates the numbers
+        // count up when you scroll to them
+        function animateNumber(element) {
+            var target = parseInt(element.getAttribute('data-target'));
+            var current = 0;
+            var increment = target / 60;  // 60 steps to reach target
+            
+            var timer = setInterval(function() {
+                current += increment;
+                if (current >= target) {
+                    current = target;
+                    clearInterval(timer);
+                }
+                element.textContent = Math.floor(current);
+            }, 30);  // update every 30ms
+        }
+        
+        // this function checks if an element is visible on screen
+        function isElementVisible(element) {
+            var rect = element.getBoundingClientRect();
+            var windowHeight = window.innerHeight || document.documentElement.clientHeight;
+            return rect.top <= windowHeight && rect.bottom >= 0;
+        }
+        
+        // scroll to section function for navigation
+        function scrollToSection(sectionId) {
+            var element = document.getElementById(sectionId);
+            if (element) {
+                element.scrollIntoView({
+                    behavior: 'smooth'  // smooth scrolling looks nicer
+                });
+            }
+        }
+        
+        // check for visible numbers when scrolling
+        var numbersAnimated = false;  // so i dont animate them multiple times
+        window.addEventListener('scroll', function() {
+            if (!numbersAnimated) {
+                var counters = document.querySelectorAll('.number-counter');
+                for (var i = 0; i < counters.length; i++) {
+                    if (isElementVisible(counters[i])) {
+                        animateNumber(counters[i]);
+                    }
+                }
+                // once start animating, don't do it again
+                if (isElementVisible(counters[0])) {
+                    numbersAnimated = true;
+                }
+            }
+        });
+        
+        // update navigation active states
+        // this highlights which section you're currently looking at
+        window.addEventListener('scroll', function() {
+            var sections = document.querySelectorAll('section');
+            var navLinks = document.querySelectorAll('.nav-link');
+            
+            var currentSection = '';
+            for (var i = 0; i < sections.length; i++) {
+                var section = sections[i];
+                var rect = section.getBoundingClientRect();
+                if (rect.top <= 100 && rect.bottom >= 100) {
+                    currentSection = section.id;
+                    break;
+                }
+            }
+            
+            // update active link
+            for (var j = 0; j < navLinks.length; j++) {
+                var link = navLinks[j];
+                if (link.getAttribute('href') === '#' + currentSection) {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
+                }
+            }
+        });
+        
+        // run everything when the page loads
+        window.addEventListener('load', function() {
+            makeChart();  // create the chart
+            console.log("Everything loaded successfully!"); // for debugging
+        });
+    </script>
+</body>
+</html>
